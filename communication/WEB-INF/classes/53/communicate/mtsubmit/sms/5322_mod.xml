@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="mtsGatewayModule5322" class="com.lxt2.gateway.sms.module.SmsGatewayModule">
+		<property name="id" value="5322"/>
+		<property name="name" value="下行发送SGIP"/>
+		<property name="hub" ref="hubImpl"/>
+		<property name="submitQueue" ref="mtsSubmitQueue5322"/>
+		<property name="adapter" ref="mtsPersistentSubmitQueueAdapter5322"/>
+		<property name="gateway" ref="mtsSgipGateway5322"/>
+		<property name="status" value="STOP"/>
+		<property name="configList">
+			<list>
+				<ref bean="moSgipParameter5322"/>
+				<ref bean="mtsSgipParameter5322"/>
+				<ref bean="mtsSgipDeliverAdapter5322"/>
+			</list>
+		</property>
+		<!-- 命令集合 -->
+		<property name="controlCmdMap">
+			<map>
+				<entry key="qePerf" value-ref="mtsQueueCmd5322"/>
+                <entry key="view" value-ref="mtsGateWayViewCmd5322"/>
+			</map>
+		</property>
+		<!-- 指标集合 -->
+		<property name="kpiList">
+			<list>
+				<ref bean="mtsQueueKPI5322"/>
+				<ref bean="mtsGateWayModuleKPI5322"/>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 模块的指标配置 -->
+	<bean id="mtsQueueKPI5322" class="com.lxt2.queuekc.QueueKPI">
+		<property name="queue" ref="mtsSubmitQueue5322"/>
+	</bean>
+	<!-- 模块的命令配置 -->
+	<bean id="mtsQueueCmd5322" class="com.lxt2.queuekc.QueuePerfCmd">
+		<property name="kpiQueueList">
+			<list>
+				<ref bean="mtsQueueKPI5322"/>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="mtsSubmitQueue5322" class="com.lxt2.queuekc.CacheQueue" destroy-method="destroy">
+		<property name="cache">
+			<bean class="ihandy.lxt20.persist.cache.Priority"/>
+		</property>
+		<property name="queueName" value="mtsSubmit5322"/>
+	</bean>
+	
+	<bean id="mtsPersistentSubmitQueueAdapter5322" class="com.lxt2.gateway.sms.queue.PersistentSubmitQueueAdapter">
+		<property name="cacheQueue" ref="mtsSubmitQueue5322"/>
+		<property name="hub" ref="hubImpl"/>
+		<property name="spliterMap" ref="mtsSpliterMap5322"/>
+		<property name="config" ref="mtsSgipGatewayConfig5322"/>
+	</bean>
+	<bean id="mtsPersistentRespQueueAdapter5322" class="com.lxt2.gateway.sms.queue.PersistentRespQueueAdapter">
+		<property name="hub" ref="hubImpl"/>
+		<property name="sid" ref="ndSid"/>
+		<property name="config" ref="mtsSgipGatewayConfig5322"/>
+		<property name="saveLogger" ref="saveLogger"/>
+	</bean>
+	<bean id="mtsPersistentReportQueueAdapter5322" class="com.lxt2.gateway.sms.queue.PersistentReportQueueAdapter">
+		<property name="hub" ref="hubImpl"/>
+		<property name="reportAdapter" ref="mtsSgipReportAdapter5322"/>
+<!-- 		<property name="proc" value="1004"/> -->
+		<property name="sid" ref="ndSid"/>
+		<property name="config" ref="mtsSgipGatewayConfig5322"/>
+	</bean>
+	<bean id="mtsPersistentDeliverQueueAdapter5322" class="com.lxt2.gateway.sms.queue.PerisitentDeliverQueueAdapter">
+		<property name="hub" ref="hubImpl" />
+		<property name="deliverAdapter" ref="mtsSgipDeliverAdapter5322"/>
+		<property name="sid" ref="ndSid"/>
+		<property name="config" ref="mtsSgipGatewayConfig5322"/>
+	</bean>
+    <bean id="mtsGateWayModuleKPI5322" class="com.lxt2.gateway.sms.module.SmsGatewayModuleKPI">
+        <property name="cacheQueue" ref="mtsSubmitQueue5322"/>
+        <property name="dataGather" ref="mtsDataGather5322"/>
+        <property name="module" ref="mtsGatewayModule5322"/>
+    </bean>
+    <bean id="mtsDataGather5322" class="com.lxt2.gateway.sms.GatewayDataGather" init-method="init" destroy-method="destroy">
+    	<property name="path" value="${CLASSPATH}/${nodeID}/persistent/statistics/gateway5322.properties"/>
+    </bean>
+    <!-- 获取模块的监视信息 -->
+	<bean id="mtsGateWayViewCmd5322" class="com.lxt2.base.module.ModuleKPICmd">
+		<property name="kpi" ref="mtsGateWayModuleKPI5322"/>
+	</bean>
+	<!-- 拆分抽象bean -->
+	<bean id="mtsAbstractSpliter5322" abstract="true" lazy-init="true">
+		<property name="gatewayId" ref="gatewayId5322"></property>
+		<property name="gatewayXmlParser" ref="gatewayXml"></property>
+	</bean>
+	<bean id="mtsSpliterMap5322" class="java.util.HashMap" scope="prototype">
+		<constructor-arg index="0">
+			<map>
+				<entry key="15">
+					<!-- 普通短信拆分类 -->
+					<bean class="com.techcenter.spliter.CommSmsSpliter" parent="mtsAbstractSpliter5322" >
+						<property name="smSplit">
+							<bean class="com.techcenter.spliter.SMSplit" />
+						</property>
+					</bean>
+				</entry>
+				<entry key="31">
+					<!-- wappush拆分类 -->
+					<bean class="com.techcenter.spliter.WapPushSpliter" />
+				</entry>
+				<entry key="32">
+					<!-- 长短信拆分类 -->
+					<bean class="com.techcenter.spliter.LongSmsSpliter" parent="mtsAbstractSpliter5322"/>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+</beans>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	<!-- MO处理的Bean前缀是mop -->
+	<!-- MO处理模块配置 -->
+	<bean id="mopModule1453" class="com.lxt2.moprocess.MoProcessModule">
+		<property name="id" value="1453"/>
+		<property name="name" value="上行处理"/>
+		<property name="hub" ref="hubImpl"/>
+		<property name="cacheQueue" ref="mopDeliverQueue1453"/>
+		<property name="controlCmdMap">
+			<map>
+				<entry key="qePerf" value-ref="mopQueueCmd1453"/>
+                <entry key="view" value-ref="mopViewCmd1453"/>
+			</map>
+		</property>
+		<!-- 指标集合 -->
+		<property name="kpiList">
+			<list>
+				<ref bean="mopMoQueueKPI1453"/>
+                <ref bean="mopModelKPI1453"/>
+			</list>
+		</property>
+	</bean>
+	<!-- 模块的指标配置 -->
+	<!-- MO处理队列KPI -->
+	<bean id="mopMoQueueKPI1453" class="com.lxt2.queuekc.QueueKPI">
+		<property name="queue" ref="mopDeliverQueue1453"/>
+	</bean>
+    <bean id="mopModelKPI1453" class="com.lxt2.moprocess.MoProcesModuleKPI" init-method="init">
+        <property name="moProcessModule" ref="mopModule1453"/>
+        <property name="queue" ref="mopDeliverQueue1453"/>
+        <property name="dataGather" ref="mopDataGather1453"/>
+    </bean>
+    <!-- 获取模块的监视信息 -->
+	<bean id="mopDataGather1453" class="com.lxt2.moprocess.MopDataGather" init-method="init" destroy-method="destroy">
+		<property name="path" value="${CLASSPATH}/${nodeID}/persistent/statistics/mopDataGather1453.properties"/>
+	</bean>
+
+	<!-- 模块的命令配置 -->
+	<bean id="mopQueueCmd1453" class="com.lxt2.queuekc.QueuePerfCmd">
+		<property name="kpiQueueList">
+			<list>
+				<ref bean="mopMoQueueKPI1453"/>
+			</list>
+		</property>
+	</bean>
+    <!-- 获取模块的监视信息 -->
+	<bean id="mopViewCmd1453" class="com.lxt2.base.module.ModuleKPICmd">
+		<property name="kpi" ref="mopModelKPI1453"/>
+	</bean>
+</beans>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<!-- 上行路由过滤器 -->
+	<bean id="mopRouterFilter1453" class="com.lxt2.moprocess.filter.DeliverRouterFilter">
+		<property name="deliverRouter" ref="mopDeliverRouter" />
+	</bean>
+	<!-- 已接收队列处理监听 -->
+	<bean id="mopDeliverListener1453" class="com.lxt2.moprocess.MopDeliverListener">
+		<property name="module" ref="mopModule1453" />
+		<property name="dataGather" ref="mopDataGather1453" />
+		<property name="verifyService" ref="ndClientVerify"/>
+		<property name="saveLogger" ref="saveLogger" />
+		<property name="filters">
+			<list>
+				<ref bean="mopRouterFilter1453" />
+			</list>
+		</property>
+	</bean>
+	<!-- 已接收队列 -->
+	<bean id="mopDeliverQueue1453" class="com.lxt2.queuekc.CacheQueue"
+		destroy-method="destroy">
+		<property name="cache">
+			<bean class="ihandy.lxt20.persist.cache.Priority"
+				destroy-method="close" />
+		</property>
+		<property name="queueName" value="mopDeliver1453" />
+		<property name="listener" ref="mopDeliverListener1453" />
+	</bean>
+</beans>

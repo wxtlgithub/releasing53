@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>Insert title here</title>
+		<script type="text/javascript">
+			function stopStartNode(cmd,id){
+				var cmdUrl = "cmd.ashx?cmd=-C"+cmd;
+				var mid = document.getElementById(id).value;
+				cmdUrl =cmdUrl + " -P"+ mid;
+				window.open(cmdUrl);
+			}
+		
+		</script>
+	</head>
+	<body>
+		<p>
+		<ul>
+			<li>
+				<a href="cmd.ashx?cmd=-F601 -Cviewbussta">viewbussta</a>
+			</li>
+			<li>
+				<a href="cmd.ashx?cmd=-F601 -Cviewkpi">viewkpi</a>
+			</li>
+			<li>
+				<a href="cmd.ashx?cmd=-F601 -Cviewhubsta">viewhubsta</a>
+			</li>
+			<li>
+				<a href="cmd.ashx?cmd=-Cqueue">queue</a>
+			</li>
+			<li>
+				<a href="cmd.ashx?cmd=-Cviewall">viewall</a>
+			</li>
+			<li>
+				<label for="stopNode">模块ID：</label><input id="stopNode"/><input type="button" value="stop" onclick="stopStartNode('stop','stopNode')"/>
+			</li>
+			<li>
+				<label for="startNode">模块ID：</label><input id="startNode"/><input type="button" value="start" onclick="stopStartNode('start','startNode')"/>
+			</li>
+		</ul>
+		</p>
+	</body>
+</html>

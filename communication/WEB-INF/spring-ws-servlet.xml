@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:24/resourcecenter.properties</value>
+            </list>
+        </property>
+    </bean>
+
+
+    <bean id="putMmsEndpoint" class="com.lxt2.resourcecenter.ws.PutMmsEndpoint">
+        <property name="resourceSize" value="${resource.resourceSize}"/>
+        <property name="resCenterName" value="commonResourceCenter"/>
+    </bean>
+    <bean id="getMmsEndpoint" class="com.lxt2.resourcecenter.ws.GetMmsEndpoint">
+        <property name="resCenterName" value="commonResourceCenter"/>
+    </bean>
+    <bean class="org.springframework.ws.server.endpoint.mapping.PayloadRootQNameEndpointMapping">
+        <property name="mappings">
+            <props>
+                <prop key="{http://www.example.org/resource-center}putMMSRequest">putMmsEndpoint</prop>
+                <prop key="{http://www.example.org/resource-center}getMMSRequest">getMmsEndpoint</prop>
+            </props>
+        </property>
+        <property name="interceptors">
+            <bean class="org.springframework.ws.server.endpoint.interceptor.PayloadLoggingInterceptor"/>
+        </property>
+    </bean>
+
+    <bean id="resourceCenter" class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
+        <property name="schema" ref="schema"/>
+        <property name="portTypeName" value="resourceCenter"/>
+        <property name="locationUri" value="/resourceCenterService/"/>
+    </bean>
+
+    <bean id="schema" class="org.springframework.xml.xsd.SimpleXsdSchema">
+        <property name="xsd" value="WEB-INF/resource-center.xsd"/>
+    </bean>
+
+</beans>
+

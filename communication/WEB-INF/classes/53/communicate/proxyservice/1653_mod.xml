@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	<!-- 接口服务的Bean前缀是ps -->
+	<!-- 接口服务模块(初始化工作由网元负责完成) -->
+	<bean id="psModule1653" class="com.lxt2.proxyservice.PSModule">
+		<property name="id" value="1653"/>
+		<property name="name" value="CSA接口服务"/>
+		<property name="hub" ref="hubImpl"/>
+		<property name="cacheQueue" ref="psCacheQueue1653"/>
+		<property name="backupQueue" ref="psBackQueue1653"/>
+		<property name="acceptor" ref="psIoAcceptor1653"/>
+		<property name="moController" ref="psMoController1653"/>
+		<property name="resendRun" ref="psBackupResend1653"/>
+		<property name="timerQueue" ref="psTimerQueue1653"/>
+		<property name="controlCmdMap">
+			<map>
+				<entry key="qePerf" value-ref="psQueueCmd1653"/>
+				<entry key="view" value-ref="psViewCmd1653"/>
+			</map>
+		</property>
+		<!-- 指标集合 -->
+		<property name="kpiList">
+			<list>
+				<ref bean="psMoQueueKPI1653"/>
+				<ref bean="psMoBackQueueKPI1653"/>
+				<ref bean="psTimerQueueKPI1653"/>
+				<ref bean="psModuleKPI1653"/>
+			</list>
+		</property>
+	</bean>
+	<!-- 模块的指标配置 -->
+	<!-- MO队列KPI -->
+	<bean id="psMoQueueKPI1653" class="com.lxt2.queuekc.QueueKPI">
+		<property name="queue" ref="psCacheQueue1653"/>
+	</bean>
+	<!-- MO备份队列KPI -->
+	<bean id="psMoBackQueueKPI1653" class="com.lxt2.queuekc.QueueKPI">
+		<property name="queue" ref="psBackQueue1653"/>
+	</bean>
+	<!-- 定时发送队列KPI -->
+	<bean id="psTimerQueueKPI1653" class="com.lxt2.queuekc.QueueKPI">
+		<property name="queue" ref="psTimerQueue1653"/>
+	</bean>
+	
+	<!-- 模块的KPI指标begin(主要应用于模块监视) -->
+	<bean id="psModuleKPI1653" class="com.lxt2.proxyservice.PSModuleKPI">
+		<property name="backQueue" ref="psBackQueue1653"/>
+		<property name="moQueue" ref="psCacheQueue1653"/>
+		<property name="countService" ref="psCountService1653"/>
+		<property name="module" ref="psModule1653"/>
+		<property name="sessionService" ref="psClientSessionService1653"/>
+	</bean>
+	<!-- 计数统计服务 -->
+	<bean id="psCountService1653" class="com.lxt2.proxyservice.statistic.StandardCountService" init-method="init" destroy-method="destroy">
+		<property name="propertyFileName" value="${CLASSPATH}/${nodeID}/persistent/statistics/proxyservice1653.properties"/>
+	</bean>
+	<!-- 模块的KPI指标end(主要应用于模块监视) -->
+	<!-- 模块的命令配置 -->
+	<!-- 获取队列的监视信息  -->
+	<bean id="psQueueCmd1653" class="com.lxt2.queuekc.QueuePerfCmd">
+		<property name="kpiQueueList">
+			<list>
+				<ref bean="psMoQueueKPI1653"/>
+				<ref bean="psMoBackQueueKPI1653"/>
+				<ref bean="psTimerQueueKPI1653"/>
+			</list>
+		</property>
+	</bean>
+	<!-- 获取模块的监视信息 -->
+	<bean id="psViewCmd1653" class="com.lxt2.base.module.ModuleKPICmd">
+		<property name="kpi" ref="psModuleKPI1653"/>
+	</bean>
+</beans>

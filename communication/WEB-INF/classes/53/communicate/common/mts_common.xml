@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="saveLogger" class="com.project.base.log.ProjectSaveLogger" destroy-method="destroy">
+			<property name="phoneInfoList" ref="phoneInfoList" />
+			<property name="nodeId" value="${nodeID}"/>
+	</bean>
+
+<!-- 	<bean id="saveLogger" class="com.lxt2.base.log.SaveLogger" destroy-method="destroy"/> -->
+	
+	<bean id="gatewayXml" class="com.lxt2.gateway.parse.GatewayXmlParser" init-method="init">
+ 		<property name="systemConfig" ref="systemConfig"/> 
+		<property name="persistDir" value="${CLASSPATH}/${nodeID}/persistent"/>
+		<property name="cmd" value="-U{0} -F{1} -Cgetgateway"/>
+	</bean>
+
+	<bean id="exceptionHandle" class="com.lxt2.gateway.sms.ExceptionHandle">
+		<property name="verifyService" ref="ndClientVerify"/>
+		<property name="sid" ref="ndSid"/>
+		<property name="saveLogger" ref="saveLogger"/>
+	</bean>
+
+	<bean id="exceptionHandleUtil" class="com.lxt2.gateway.sms.ExceptionHandleUtil" init-method="init">
+		<property name="exceptionHandle" ref="exceptionHandle"/>
+	</bean>
+
+	<!-- 网关配置命令 -->
+	<bean id="gatewayConfigLoadCmd" class="com.lxt2.gateway.parse.GatewayConfigLoadCmd">
+        <property name="gatewayParse" ref="gatewayXml"/>
+    </bean>
+    
+    <!-- 网关配置同步任务 -->
+	<bean id="gatewayConfigLoadTask" class="com.lxt2.gateway.parse.GatewayConfigLoadTask">
+		<property name="id" value="110"/>
+		<property name="name" value="网关配置加载"/>
+		<!-- 每天凌晨2点执行 -->
+		<property name="taskSchRule" value="@{sch(0,2)}"/>
+		<property name="gatewayParse" ref="gatewayXml"/>
+        <property name="commandMap">
+            <map>
+                <entry key="sync" value-ref="gatewayConfigLoadCmd"/>
+            </map>
+        </property>
+	</bean>
+	
+	<bean id="mmsExceptionHandle" class="com.lxt2.mmsgateway.service.ExceptionHandle">
+		<property name="verifyService" ref="ndClientVerify"/>
+		<property name="sid" ref="ndSid"/>
+		<property name="saveLogger" ref="saveLogger"/>
+	</bean>
+</beans>

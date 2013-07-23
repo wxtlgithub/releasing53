@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	<bean id="smsContentKCUpdateService1053" class="com.lxt2.proxyservice.SMSContentKCUpdateService">
+		<property name="db" ref="packageDB1053"/>
+		<property name="smsCountService" ref="smsCountService1053"/>
+	</bean>
+    <bean id="kcupdateCmd1053" class="com.lxt2.proxyservice.SMSContentKCUpdateCmd">
+		<property name="service" ref="smsContentKCUpdateService1053"/>
+	</bean>
+	<!-- 接口服务的Bean前缀是ps -->
+	<!-- 接口服务模块(初始化工作由网元负责完成) -->
+	<bean id="psModule1053" class="com.lxt2.proxyservice.PSModule">
+		<property name="id" value="1053"/>
+		<property name="name" value="接口服务"/>
+		<property name="hub" ref="hubImpl"/>
+		<property name="cacheQueue" ref="psCacheQueue1053"/>
+		<property name="backupQueue" ref="psBackQueue1053"/>
+		<property name="acceptor" ref="psIoAcceptor1053"/>
+		<property name="moController" ref="psMoController1053"/>
+		<property name="resendRun" ref="psBackupResend1053"/>
+		<property name="timerQueue" ref="psTimerQueue1053"/>
+		<property name="contentPassTblQueue" ref="apiclientContentPassTblQueue1053"/>
+		<property name="contentNopassTblQueue" ref="apiclientContentNopassTblQueue1053"/>
+		<property name="contentTimeoutTblQueue" ref="apiclientContentTimeoutTblQueue1053"/>
+		<property name="controlCmdMap">
+			<map>
+				<entry key="qePerf" value-ref="psQueueCmd1053"/>
+				<entry key="view" value-ref="psViewCmd1053"/>
+				<entry key="getecsendkpi" value-ref="getEcKpi1053"/>
+				<entry key="kcupdate" value-ref="kcupdateCmd1053" />
+			</map>
+		</property>
+		<!-- 指标集合 -->
+		<property name="kpiList">
+			<list>
+				<ref bean="psMoQueueKPI1053"/>
+				<ref bean="psMoBackQueueKPI1053"/>
+				<ref bean="psTimerQueueKPI1053"/>
+				<ref bean="psModuleKPI1053"/>
+			</list>
+		</property>
+	</bean>
+	<!-- 模块的指标配置 -->
+	<!-- MO队列KPI -->
+	<bean id="psMoQueueKPI1053" class="com.lxt2.queuekc.QueueKPI">
+		<property name="queue" ref="psCacheQueue1053"/>
+	</bean>
+	<!-- MO备份队列KPI -->
+	<bean id="psMoBackQueueKPI1053" class="com.lxt2.queuekc.QueueKPI">
+		<property name="queue" ref="psBackQueue1053"/>
+	</bean>
+	<!-- 定时发送队列KPI -->
+	<bean id="psTimerQueueKPI1053" class="com.lxt2.queuekc.QueueKPI">
+		<property name="queue" ref="psTimerQueue1053"/>
+	</bean>
+	
+	<!-- 模块的KPI指标begin(主要应用于模块监视) -->
+	<bean id="psModuleKPI1053" class="com.lxt2.proxyservice.PSModuleKPI">
+		<property name="backQueue" ref="psBackQueue1053"/>
+		<property name="moQueue" ref="psCacheQueue1053"/>
+		<property name="countService" ref="psCountService1053"/>
+		<property name="module" ref="psModule1053"/>
+		<property name="sessionService" ref="psClientSessionService1053"/>
+	</bean>
+	<!-- 计数统计服务 -->
+	<bean id="psCountService1053" class="com.lxt2.proxyservice.statistic.StandardCountService" init-method="init" destroy-method="destroy">
+		<property name="propertyFileName" value="${CLASSPATH}/${nodeID}/persistent/statistics/proxyservice1053.properties"/>
+	</bean>
+	<!-- 模块的KPI指标end(主要应用于模块监视) -->
+
+	<!-- 模块的命令配置 -->
+	<!-- 获取队列的监视信息  -->
+	<bean id="psQueueCmd1053" class="com.lxt2.queuekc.QueuePerfCmd">
+		<property name="kpiQueueList">
+			<list>
+				<ref bean="psMoQueueKPI1053"/>
+				<ref bean="psMoBackQueueKPI1053"/>
+				<ref bean="psTimerQueueKPI1053"/>
+			</list>
+		</property>
+	</bean>
+	<!-- 获取模块的监视信息 -->
+	<bean id="psViewCmd1053" class="com.lxt2.base.module.ModuleKPICmd">
+		<property name="kpi" ref="psModuleKPI1053"/>
+	</bean>
+	<!-- 获取预付费通讯 -->
+	<bean id="ecCountService1053" class="com.lxt2.proxyservice.statistic.EcCountService">
+		<property name="propertyFileName" value="${CLASSPATH}/${nodeID}/persistent/statistics/proxyservice1053.properties"/>
+	</bean>
+	
+	<bean id="prepayControlHandler1053" class="com.lxt2.proxyservice.statistic.PrepayControlHandler">
+		<property name="countService" ref="ecCountService1053"/>
+		<property name="verify" ref="prepaidEcVerify"/>
+		<property name="module" ref="psModule1053"/>		
+		<property name="needOverPay" ref="needOverPay"/>
+		<!-- 平台客户端 -->
+		<property name="plantformClientMap">
+			<map>
+				<entry key="0" value="0" />
+				<entry key="1" value="1" />
+				<entry key="3" value="3" />
+				<entry key="4" value="4" />
+			</map>
+		</property>		
+	</bean>
+	
+	<bean id="getEcKpi1053" class="com.lxt2.proxyservice.statistic.GetEcKpiCmd">
+		<property name="control" ref="prepayControlHandler1053"/>
+	</bean>
+</beans>

@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+					    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+
+	<bean id="smsCountService1053" class="com.lxt2.proxyservice.socket.SmsCountService">
+	</bean>
+
+	<bean id="timeReceiveControl1053" class="com.techcenter.msgqueue.DayReceiveControlRunnable"
+		init-method="init" destroy-method="destroy">
+		<property name="dayStartTime" value="${send.starttime}" />
+		<property name="dayEndTime" value="${send.endtime}" />
+	</bean>
+
+	<bean id="clientContentService1053"
+		class="com.lxt20.interfaceservice.dbservice.ClientContentService" />
+
+	<bean id="psClientSubmitTask" class="com.lxt20.interfaceservice.util.ClientSubmitTask">
+		<property name="id" value="305" />
+		<property name="db" ref="packageDB1053" />
+		<property name="name" value="接口审核短信定时清理" />
+		<!-- 待审核短信清理时间(单位:分钟) ,按实际需求修改 -->
+		<property name="outTime1" value="480" />
+		<!-- 审核完成短信清理时间(单位:分钟) ,按实际需求修改-->
+		<property name="outTime2" value="1440" />
+		<property name="clientContentService" ref="clientContentService1053" />
+
+
+		<!-- 每半分钟执行任务 -->
+		<property name="taskSchRule" value="@{cycle(30)}" />
+	</bean>
+
+	<bean id="clientContentDbService1053"
+		class="com.lxt2.proxyservice.ClientContentDbService" >
+		<property name="dbService" ref="clientContentService1053" />
+		<property name="path" value="${WORKDIR}../../../data/file/" />
+		<property name="nodeID" value="${nodeID}" />
+    </bean>
+		
+	<!-- 客户端短信处理Task -->
+	<bean id="psClientContentTask" class="com.lxt20.interfaceservice.util.ClientContentTask">
+		<property name="id" value="306" />
+		<property name="name" value="客户端短信处理" />
+		<property name="path" value="${WORKDIR}../../../data/file/" />
+		<property name="dbService" ref="clientContentService1053" />
+		<!-- 每2分钟执行任务 -->
+		<property name="taskSchRule" value="@{cycle(120)}" />
+	</bean>
+	<bean id="packageDB1053" class="com.lxt2.proxyservice.PackageDB"
+		init-method="open">
+		<property name="path" value="${WORKDIR}../../../psdata/" />
+		<property name="fileName" value="psToExamine" />
+	</bean>
+
+	<bean id="submitDB1053" class="com.lxt2.proxyservice.PackageKC"
+		init-method="open">
+		<property name="smsCountService" ref="smsCountService1053" />
+		<property name="busImpl" ref="psBusImpl"/>
+	</bean>
+	
+		<!-- IBus对象，数据存储同步 -->
+	<bean id="psBusImpl" class="ihandy.lxt20.bus.BusImpl">
+		<property name="maxFileSize" value="134217728" />
+		<property name="busPath" value="${WORKDIR}../../../psdata/" />
+	</bean>
+	<bean id="clientContentFileService" class="com.lxt2.proxyservice.ClientContentFileService" />
+
+	<bean id="clientContentFileService1053" class="com.lxt2.proxyservice.ClientContentFileService">
+		<property name="path" value="${WORKDIR}../../../data/file/" />
+	</bean>
+
+	<bean id="psToExamine" class="com.lxt2.proxyservice.PSToExamine">
+		<property name="contentDB" ref="packageDB1053" />
+		<property name="submitDB" ref="submitDB1053" />
+		<property name="psModule" ref="psModule1053" />
+		<!-- 需要审核短信条数,按实际需求修改 -->
+		<property name="sumCount" value="100" />
+		<property name="sid" ref="ndSid" />
+		<property name="sendTimeType" ref="psTimerSendChecker1053" />
+		<property name="timeQueue" ref="psTimerQueue1053" />
+		<property name="priorityFill" ref="priorityFill1053" />
+		<property name="msgIdUtil" ref="mtpMsgID1153" />
+		<property name="saveLogger" ref="saveLogger" />
+		<property name="smsCountService" ref="smsCountService1053" />
+		<property name="clientcontentService" ref="clientContentDbService1053" />
+	</bean>
+	<!-- 审核通过队列监听 -->
+	<bean id="clientContentTblPassListener"
+		class="com.lxt20.interfaceservice.listener.ClientContentTblListener"
+		init-method="init" destroy-method="destroy">
+		<property name="clientContentService" ref="clientContentService1053" />
+		<property name="maxWorkder" value="2" />
+		<property name="psModule" ref="psModule1053" />
+		<property name="timeQueue" ref="psTimerQueue1053" />
+		<property name="priorityFill" ref="priorityFill1053" />
+		<property name="verifyService" ref="ndClientVerify" />
+		<property name="sid" ref="ndSid" />
+		<property name="msgIdUtil" ref="mtpMsgID1153" />
+		<property name="saveLogger" ref="saveLogger" />
+		<property name="sendTimeType" ref="psTimerSendChecker1053" />
+		<property name="submitDB" ref="submitDB1053" />
+		<property name="numCheckState" value="2" />
+		<property name="smsCountService" ref="smsCountService1053" />
+	</bean>
+	<!-- 审核未通过队列监听 -->
+	<bean id="clientContentTblNoPassListener"
+		class="com.lxt20.interfaceservice.listener.ClientContentTblListener"
+		init-method="init" destroy-method="destroy">
+		<property name="clientContentService" ref="clientContentService1053" />
+		<property name="maxWorkder" value="2" />
+		<property name="psModule" ref="psModule1053" />
+		<property name="timeQueue" ref="psTimerQueue1053" />
+		<property name="priorityFill" ref="priorityFill1053" />
+		<property name="verifyService" ref="ndClientVerify" />
+		<property name="sid" ref="ndSid" />
+		<property name="msgIdUtil" ref="mtpMsgID1153" />
+		<property name="saveLogger" ref="saveLogger" />
+		<property name="sendTimeType" ref="psTimerSendChecker1053" />
+		<property name="submitDB" ref="submitDB1053" />
+		<property name="numCheckState" value="-1" />
+		<property name="smsCountService" ref="smsCountService1053" />
+	</bean>
+	<!-- 超时队列监听 -->
+	<bean id="clientContentTblTimeOutListener"
+		class="com.lxt20.interfaceservice.listener.ClientContentTblListener"
+		init-method="init" destroy-method="destroy">
+		<property name="clientContentService" ref="clientContentService1053" />
+		<property name="maxWorkder" value="2" />
+		<property name="psModule" ref="psModule1053" />
+		<property name="timeQueue" ref="psTimerQueue1053" />
+		<property name="priorityFill" ref="priorityFill1053" />
+		<property name="verifyService" ref="ndClientVerify" />
+		<property name="sid" ref="ndSid" />
+		<property name="msgIdUtil" ref="mtpMsgID1153" />
+		<property name="saveLogger" ref="saveLogger" />
+		<property name="sendTimeType" ref="psTimerSendChecker1053" />
+		<property name="submitDB" ref="submitDB1053" />
+		<property name="numCheckState" value="-2" />
+		<property name="smsCountService" ref="smsCountService1053" />
+	</bean>
+	<!-- 审核通过队列 -->
+	<bean id="apiclientContentPassTblQueue1053" class="com.lxt20.interfaceservice.queue.ClientContentTblQueue"
+		init-method="open" destroy-method="destroy">
+		<constructor-arg>
+			<ref bean="tlClientContentDAO" />
+		</constructor-arg>
+		<property name="listener">
+			<ref bean="clientContentTblPassListener" />
+		</property>
+		<property name="receiveControlList">
+			<list>
+				<!-- 发送时间控制 -->
+				<ref local="timeReceiveControl1053" />
+			</list>
+		</property>
+		<property name="statusInitSql">
+			<value><![CDATA[update TL_CLIENT_CONTENT set NUMSENDSTATE=0 where NUMCHECKSTATE=2 and NUMSENDSTATE=1 and NUMNODEID=53]]></value>
+		</property>
+		<property name="numSendState" value="0" />
+		<property name="numCheckState" value="2" />
+		<property name="numNodeID" value="${nodeID}" />
+	</bean>
+
+	<!-- 审核未通过队列 -->
+	<bean id="apiclientContentNopassTblQueue1053" class="com.lxt20.interfaceservice.queue.ClientContentTblQueue"
+		init-method="open" destroy-method="destroy">
+		<constructor-arg>
+			<ref bean="tlClientContentDAO" />
+		</constructor-arg>
+		<property name="listener">
+			<ref bean="clientContentTblNoPassListener" />
+		</property>
+		<property name="receiveControlList">
+			<list>
+				<!-- 发送时间控制 -->
+				<ref local="timeReceiveControl1053" />
+			</list>
+		</property>
+		<property name="statusInitSql">
+			<value><![CDATA[update TL_CLIENT_CONTENT set NUMSENDSTATE=0 where NUMCHECKSTATE=-1 and NUMSENDSTATE=1 and NUMNODEID=53]]></value>
+		</property>
+		<property name="numSendState" value="0" />
+		<property name="numCheckState" value="-1" />
+		<property name="numNodeID" value="${nodeID}" />
+	</bean>
+
+	<!-- 超时队列 -->
+	<bean id="apiclientContentTimeoutTblQueue1053" class="com.lxt20.interfaceservice.queue.ClientContentTblQueue"
+		init-method="open" destroy-method="destroy">
+		<constructor-arg>
+			<ref bean="tlClientContentDAO" />
+		</constructor-arg>
+		<property name="listener">
+			<ref bean="clientContentTblTimeOutListener" />
+		</property>
+		<property name="receiveControlList">
+			<list>
+				<!-- 发送时间控制 -->
+				<ref local="timeReceiveControl1053" />
+			</list>
+		</property>
+		<property name="statusInitSql">
+			<value><![CDATA[update TL_CLIENT_CONTENT set NUMSENDSTATE=0 where NUMCHECKSTATE=-2 and NUMSENDSTATE=1 and NUMNODEID=53]]></value>
+		</property>
+		<property name="numSendState" value="0" />
+		<property name="numCheckState" value="-2" />
+		<property name="numNodeID" value="${nodeID}" />
+	</bean>
+</beans>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.example.org/resource-center" targetNamespace="http://www.example.org/resource-center" elementFormDefault="qualified">
+	<xs:element name="putMMSRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="srcId" type="xs:string"/>
+				<xs:element name="keepDay" type="xs:int"/>
+				<xs:element name="fileMsg" minOccurs="1" maxOccurs="unbounded" type="tns:fileMsgType"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="putMMSResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="statusCode" type="xs:int"/>
+				<xs:element name="statusText" type="xs:string"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="updateMMSRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="resourceId" type="xs:int"/>
+				<xs:element name="keepDay" type="xs:int"/>
+				<xs:element maxOccurs="unbounded" minOccurs="1" name="fileMsg" type="tns:fileMsgType"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="updateMMSResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="statusCode" type="xs:int"/>
+				<xs:element name="statusText" type="xs:string"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:complexType name="fileMsgType">
+		<xs:sequence>
+			<xs:element name="fileName" type="xs:string"/>
+			<xs:element name="fileContent" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:element name="getMMSRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="resourceId" type="xs:string"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="getMMSResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="statusCode" type="xs:int"/>
+				<xs:element name="statusText" type="xs:string"/>
+				<xs:element name="fileMsg" minOccurs="0" maxOccurs="unbounded" type="tns:fileMsgType"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

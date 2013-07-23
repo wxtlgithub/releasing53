@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="psTimerListener1653" class="com.lxt2.proxyservice.TimerSubmitListener">
+		<property name="module" ref="psModule1653" />
+	</bean>
+	<bean id="psTimerQueue1653" class="com.lxt2.queuekc.CacheQueue">
+		<property name="cache">
+			<bean class="ihandy.lxt20.persist.cache.TsCache" destroy-method="close" />
+		</property>
+		<property name="queueName" value="mtTimer1653" />
+		<property name="listener" ref="psTimerListener1653" />
+	</bean>
+	<bean id="psCounterService1653" class="com.lxt2.proxyservice.ClientCounterService"
+		init-method="init" destroy-method="destroy" />
+	<bean id="psThroughputStrategy1653" class="com.lxt2.proxyservice.throughput.SubmitTpStrategyDef">
+		<property name="verifyService" ref="ndClientVerify" />
+		<property name="counterService" ref="psCounterService1653" />
+	</bean>
+
+	<bean id="psCacheQueue1653" class="com.lxt2.queuekc.CacheQueue">
+		<property name="cache">
+			<bean class="ihandy.lxt20.persist.cache.Priority" destroy-method="close" />
+		</property>
+		<property name="queueName" value="moSend1653" />
+		<property name="listener" ref="psMoProcessListener1653" />
+	</bean>
+	<bean id="psBackQueue1653" class="com.lxt2.queuekc.TruncateCacheQueue">
+		<property name="cache">
+			<bean class="ihandy.lxt20.persist.cache.TruncateQueue"
+				destroy-method="destroy">
+				<property name="path" value="${WORKDIR}../../../data/psmo1653" />
+			</bean>
+		</property>
+		<property name="queueName" value="moSendBack1653" />
+	</bean>
+	<bean id="psMoController1653" class="com.lxt2.proxyservice.MoController">
+		<property name="controlWindowSize" value="10" />
+		<property name="clearTimeOut" value="60000" />
+		<property name="clearSleepTime" value="60000" />
+		<property name="module" ref="psModule1653" />
+		<property name="queue" ref="psBackQueue1653" />
+		<property name="countService" ref="psCountService1653" />
+			<!--  是否有滑动窗口-->
+		<property name="sendType" value="false"/>
+	</bean>
+	<bean id="psDeliverFilter1653" class="com.lxt2.proxyservice.filter.SendDeliverFilter">
+		<property name="csService" ref="psClientSessionService1653" />
+		<property name="moController" ref="psMoController1653" />
+		<property name="queue" ref="psBackQueue1653" />
+	</bean>
+	<bean id="psReportFilter1653" class="com.lxt2.proxyservice.filter.SendReportFilter">
+		<property name="csService" ref="psClientSessionService1653" />
+		<property name="moController" ref="psMoController1653" />
+		<property name="queue" ref="psBackQueue1653" />
+	</bean>
+	<bean id="psMoProcessListener1653" class="com.lxt2.proxyservice.MoProcessListener">
+		<property name="module" ref="psModule1653" />
+		<property name="countService" ref="psCountService1653" />
+		<property name="verifyService" ref="ndClientVerify" />
+		<!-- 超时时间  依赖注入 默认72小时 -->
+		<property name="timeOut" value="72"/>
+		<!-- rpt错误码，依赖注入  -->
+		<property name="errMap">
+			<map>
+				<entry key="-7" value="-7" />
+				<entry key="-13" value="-13" />
+			</map>
+		</property>
+		<property name="filters">
+			<list>
+				<ref bean="psReportFilter1653" />
+				<ref bean="psDeliverFilter1653" />
+			</list>
+		</property>
+	</bean>
+	<bean id="psBackupResend1653" class="com.lxt2.proxyservice.BackUpResendRunnable">
+		<property name="module" ref="psModule1653" />
+		<property name="queue" ref="psBackQueue1653" />
+		<property name="countService" ref="psCountService1653" />
+		<property name="verifyService" ref="ndClientVerify" />
+		<!-- 超时时间  依赖注入 默认72小时 -->
+		<property name="timeOut" value="72"/>
+		<!-- rpt错误码，依赖注入  -->
+		<property name="errMap">
+			<map>
+				<entry key="-7" value="-7" />
+				<entry key="-13" value="-13" />
+			</map>
+		</property>
+		<property name="filters">
+			<list>
+				<ref bean="psReportFilter1653" />
+				<ref bean="psDeliverFilter1653" />
+			</list>
+		</property>
+	</bean>
+</beans>

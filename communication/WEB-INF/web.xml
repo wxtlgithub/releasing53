@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee   http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+	<description>史上最牛的短彩信平台</description>
+	<display-name>利信通2.0</display-name>
+	<context-param>
+		<param-name>CharacterEncoding</param-name>
+		<param-value>UTF-8</param-value>
+	</context-param>
+	<listener>
+		<listener-class>com.lxt2.common.base.BaseListener</listener-class>
+	</listener>
+	<servlet>
+		<servlet-name>BaseInit</servlet-name>
+		<servlet-class>com.lxt2.common.base.BaseInitSevlet</servlet-class>
+		<init-param>
+			<param-name>CharacterEncoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>SystemConfig</param-name>
+			<param-value>systemconfig.properties</param-value>
+		</init-param>
+		<init-param>
+			<param-name>NodecontextConfig</param-name>
+			<param-value>/53/applicationContext-init.xml</param-value>
+		</init-param>
+		<init-param>
+			<param-name>BllcontextConfig</param-name>
+			<param-value>
+				/web/bll/applicationContext_bll.xml
+			</param-value>
+		</init-param>
+		<init-param>
+			<param-name>BusinessConfigList</param-name>
+			<param-value>/web/blf/business/sevlet_*.xml</param-value>
+		</init-param>
+		<init-param>
+			<param-name>SystemConfigList</param-name>
+			<param-value>/web/blf/system/sevlet_*.xml</param-value>
+		</init-param>
+		<init-param>
+			<param-name>NodeConfigList</param-name>
+			<param-value>/web/blf/node/sevlet_*.xml</param-value>
+		</init-param>
+		<init-param>
+			<param-name>slf4j-init-file</param-name>
+			<param-value>/53/logbackconfig.xml</param-value>
+		</init-param>
+		<load-on-startup>0</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>BaseRedirectSevlet</servlet-name>
+		<servlet-class>com.lxt2.common.base.BaseRedirectSevlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BaseRedirectSevlet</servlet-name>
+		<url-pattern>*.ashx</url-pattern>
+	</servlet-mapping>
+	<!-- 资源中心sevlet -->
+	<!-- <servlet> -->
+	<!-- <servlet-name>spring-ws</servlet-name> -->
+	<!-- <servlet-class>org.springframework.ws.transport.http.MessageDispatcherServlet</servlet-class> -->
+	<!-- </servlet> -->
+	<!-- <servlet-mapping> -->
+	<!-- <servlet-name>spring-ws</servlet-name> -->
+	<!-- <url-pattern>/resourcecenter-new/*</url-pattern> -->
+	<!-- </servlet-mapping> -->
+	<!-- <servlet> -->
+	<!-- <servlet-name>spring-ws-10</servlet-name> -->
+	<!-- <servlet-class>org.springframework.ws.transport.http.MessageDispatcherServlet</servlet-class> -->
+	<!-- </servlet> -->
+	<!-- <servlet-mapping> -->
+	<!-- <servlet-name>spring-ws-10</servlet-name> -->
+	<!-- <url-pattern>/resourcecenter-old/*</url-pattern> -->
+	<!-- </servlet-mapping> -->
+	<!-- 资源中心sevlet end -->
+
+	<!-- 彩信网关sevlet -->
+	<servlet>
+		<description>mm7 mo servlet</description>
+		<servlet-name>moRequest</servlet-name>
+		<servlet-class>com.lxt2.mmsgateway.mo.MM7MOServlet</servlet-class>
+		<init-param>
+			<param-name>mmsg_constants_beanname</param-name>
+			<param-value>mmsgConstants5305</param-value>
+		</init-param>
+		<init-param>
+			<param-name>sid_beanname</param-name>
+			<param-value>ndSid</param-value>
+		</init-param>
+		<init-param>
+			<param-name>hub_beanname</param-name>
+			<param-value>hubImpl</param-value>
+		</init-param>
+		<init-param>
+			<param-name>data_gather</param-name>
+			<param-value>mtsDataGather5305</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>moRequest</servlet-name>
+		<url-pattern>/vas5305</url-pattern>
+	</servlet-mapping>
+	<!-- 彩信网关sevlet end -->
+
+	<login-config>
+		<auth-method>BASIC</auth-method>
+	</login-config>
+</web-app>

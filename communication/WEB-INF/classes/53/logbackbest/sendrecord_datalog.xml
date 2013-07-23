@@ -1,0 +1,42 @@
+<included>
+	<!-- 持久保存日志 -->
+	<appender name="standard_sendrecord_report"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${USER_HOME}datalog/sendrecord/standard_report.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${USER_HOME}datalog/sendrecord/standard_report.log.%d{yyyy-MM-dd.HHmm}
+			</FileNamePattern>
+			<MaxHistory>30</MaxHistory>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>%date{yyyy-MM-dd HH:mm:ss.SSS}%msg%n</Pattern>
+		</layout>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>WARN</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+	<appender name="standard_rptresp"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${USER_HOME}datalog/sendrecord/standard_rptresp.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${USER_HOME}datalog/sendrecord/standard_rptresp.log.%d{yyyy-MM-dd.HHmm}
+			</FileNamePattern>
+			<MaxHistory>30</MaxHistory>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>%date{yyyy-MM-dd HH:mm:ss.SSS}%msg%n</Pattern>
+		</layout>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>INFO</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+	<logger name="SENDRECORD" level="debug" additivity="false">
+		<appender-ref ref="standard_rptresp" />
+		<appender-ref ref="standard_sendrecord_report" />
+	</logger>
+
+</included>

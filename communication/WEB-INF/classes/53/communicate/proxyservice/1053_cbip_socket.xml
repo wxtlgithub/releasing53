@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util"	
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+					    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+	<!-- �ӿڷ����Beanǰ׺��ps -->
+	<!-- 预付费是否启用 -->
+	<bean id="needOverPay" class="java.lang.Boolean">
+		<constructor-arg index="0" value="false" />
+	</bean>
+	<!-- ��ʱ���ͼ����2.0�� -->
+	<bean id="psTimerSendChecker1053" class="com.lxt2.proxyservice.cbip20.SendTimeTypeChecker"/>
+    <!-- ���� -->
+	<bean id="psTimerSendMmsChecker1053" class="com.lxt2.proxyservice.cbip20.SendTimeTypeMmsChecker"/>
+
+    <!-- �ӿڷ���Submit����Bean 2.0 ��ʼ -->
+    <bean id="priorityFill1053" class="com.lxt2.proxyservice.throughput.PriorityFill"/>
+
+    <bean id="ps20SubmitReceiver1053" class="com.lxt2.proxyservice.cbip20.Cbip20SmsMtReceiver">
+        <property name="verifyService" ref="ndClientVerify"/>
+        <property name="mobileValidator" ref="ndMobileValidator"/>
+        <!--property name="strategy" ref="psThroughputStrategy1053"-->
+        <property name="psModule" ref="psModule1053"/>
+        <property name="sid" ref="ndSid"/>
+        <property name="sendTimeType" ref="psTimerSendChecker1053"/>
+        <property name="timeQueue" ref="psTimerQueue1053"/>
+        <property name="sendTaskList" ref="sendTaskListDaoLog"/>
+        <property name="priorityFill" ref="priorityFill1053"/>
+        <property name="productVerify" ref="psProductVerify"/>
+ 		<property name="control" ref="prepayControlHandler1053"/>        
+ 		<property name="psToExamine" ref="psToExamine" />     
+ 		<property name="needOverPay" ref="needOverPay" />
+    </bean>
+    <!--��������  -->
+	<bean id="ps20MmsMtReceiver1053" class="com.lxt2.proxyservice.cbip20.Cbip20MmsMtReceiver">
+		<property name="verifyService" ref="ndClientVerify"/>
+		<property name="mobileValidator" ref="ndMobileValidator"/>
+		<property name="strategy" ref="psThroughputStrategy1053"/>
+		<property name="psModule" ref="psModule1053"/>
+		<property name="sid" ref="ndSid"/>
+		<property name="sendTimeType" ref="psTimerSendMmsChecker1053"/>
+		<property name="timeQueue" ref="psTimerQueue1053"/>
+		<property name="resCenter" ref="commonResourceCenter"/>
+		<property name="sendTaskList" ref="sendTaskListDaoLog"/> 
+		<property name="priorityFill" ref="priorityFill1053"/>
+		<property name="productVerify" ref="psProductVerify"/>
+	</bean>
+
+	<!-- �ӿڷ���Submit����Bean 2.0 ���� -->
+	<!-- �ӿڷ���Submit����Bean 1.0 -->
+	<bean id="ps10SubmitReceiver1053" class="com.lxt2.proxyservice.cbip10.Cbip10SmsMtReceiver">
+		<property name="verifyService" ref="ndClientVerify"/>
+		<property name="mobileValidator" ref="ndMobileValidator"/>
+		<!--property name="strategy" ref="psThroughputStrategy1053"-->
+		<property name="psModule" ref="psModule1053"/>
+		<property name="sid" ref="ndSid"/>
+		<property name="productVerify" ref="psProductVerify"/>
+	</bean>
+	<!-- API�û�Session�������Bean -->
+	<bean id="psClientSessionService1053" class="com.lxt2.proxyservice.socket.ClientSessionService"/>
+
+	<!-- Common Handler -->
+	<bean id="psComHandler1053" class="com.lxt2.protocol.codec.common.CommonHandler" />
+	<!-- ������� -->
+	<util:list id="psDecoderList1053" list-class="java.util.ArrayList">
+		<!-- 2.0��ʼ -->
+		<value>com.lxt2.protocol.codec.cbip20.decode.CbipActiveDecoder</value>
+		<value>com.lxt2.protocol.codec.cbip20.decode.CbipLoginDecoder</value>
+		<value>com.lxt2.protocol.codec.cbip20.decode.CbipLogoutDecoder</value>
+		<value>com.lxt2.protocol.codec.cbip20.decode.CbipSubmitDecoder</value>
+		<value>com.lxt2.protocol.codec.cbip20.decode.CbipReportRespDecoder</value>
+		<value>com.lxt2.protocol.codec.cbip20.decode.CbipDeliverRespDecoder</value>
+		<value>com.lxt2.protocol.codec.cbip20.decode.CbipContentMMSDecoder</value>
+		<value>com.lxt2.protocol.codec.cbip20.decode.CbipSubmitMmsDecoder</value>
+		<!-- 2.0���� -->
+		<!-- 1.0��ʼ -->
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardActiveDecoder</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardLoginDecoder</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardLogoutDecoder</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardSubmitDecoder</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardReportRespDecoder</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardDeliverRespDecoder</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardSubmitMMSDecoder</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardContentMMSDecoder</value>
+		<!-- 1.0���� -->
+	</util:list>
+	<!-- ������� -->
+	<util:map id="psEncoderMap1053" map-class="java.util.HashMap">
+		<!-- 2.0��ʼ -->
+		<!--<entry key="com.lxt2.protocol.cbip20.CbipSubmitmmsResponse" value="com.lxt2.protocol.codec.cbip20.encode.CbipSubmitMmsRespEncoder" />-->
+		<entry key="com.lxt2.protocol.cbip20.CbipActiveResp" value="com.lxt2.protocol.codec.cbip20.encode.CbipActiveRespEncoder" />
+		<entry key="com.lxt2.protocol.cbip20.CbipLoginResp" value="com.lxt2.protocol.codec.cbip20.encode.CbipLoginRespEncoder" />
+		<entry key="com.lxt2.protocol.cbip20.CbipLogoutResp" value="com.lxt2.protocol.codec.cbip20.encode.CbipLogoutRespEncoder" />
+		<entry key="com.lxt2.protocol.cbip20.CbipSubmitResp" value="com.lxt2.protocol.codec.cbip20.encode.CbipSubmitRespEncoder" />
+		<entry key="com.lxt2.protocol.cbip20.CbipReport" value="com.lxt2.protocol.codec.cbip20.encode.CbipReportEncoder" />
+		<entry key="com.lxt2.protocol.cbip20.CbipDeliver" value="com.lxt2.protocol.codec.cbip20.encode.CbipDeliverEncoder" />
+        <entry key="com.lxt2.protocol.cbip20.CbipContentMms"
+			value="com.lxt2.protocol.codec.cbip20.encode.CbipContentMmsEncoder"/>
+        <entry key="com.lxt2.protocol.cbip20.CbipLogin"
+			value="com.lxt2.protocol.codec.cbip20.encode.CbipLoginEncoder" />
+        <entry key="com.lxt2.protocol.cbip20.CbipContentMmsResp" value="com.lxt2.protocol.codec.cbip20.encode.CbipContentMmsRespEncoder"/>
+		<!-- 2.0���� -->
+		<!-- 1.0��ʼ -->
+		<entry key="com.lxt2.protocol.cbip10.Standard_Active_Resp"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardActiveRespEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Login_Resp"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardLoginRespEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Logout_Resp"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardLogoutRespEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Submit_Response"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardSubmitResponseEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Report"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardReportEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Deliver"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardDeliverEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Content_MMS_Resp"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardContentMMSRespEncoder" />
+		<!-- 1.0���� -->
+	</util:map>
+	<!-- ������Ϣ��handler���� -->
+	<util:map id="psReceiveMap1053" map-class="java.util.HashMap">
+		<!-- 2.0��ʼ -->
+        <entry key="com.lxt2.protocol.cbip20.CbipSubmitMms">
+			<bean class="com.lxt2.proxyservice.cbip20.Cbip20SubmitMmsHandler">
+                <property name="mmsReceiver" ref="ps20MmsMtReceiver1053"/>
+			</bean>
+		</entry>
+        <entry key="com.lxt2.protocol.cbip20.CbipContentMms">
+			<bean class="com.lxt2.proxyservice.cbip20.Cbip20ContentMMSHandler">
+                <property name="contentReceiver" ref="cbip20MmsContentMtReceiver"/>
+			</bean>
+		</entry>
+		<entry key="com.lxt2.protocol.cbip20.CbipActive">
+			<bean class="com.lxt2.proxyservice.cbip20.Cbip20ActiveHandler" />
+		</entry>
+		<entry key="com.lxt2.protocol.cbip20.CbipLogin">
+			<bean class="com.lxt2.proxyservice.cbip20.Cbip20LoginHandler">
+				<property name="verifyService" ref="ndClientVerify"/>
+				<property name="csService" ref="psClientSessionService1053"/>
+				<property name="module" ref="psModule1053"/>
+			</bean>
+		</entry>
+		<entry key="com.lxt2.protocol.cbip20.CbipLogout">
+			<bean class="com.lxt2.proxyservice.cbip20.Cbip20LogoutHandler">
+				<property name="csService" ref="psClientSessionService1053"/>
+			</bean>
+		</entry>
+		<entry key="com.lxt2.protocol.cbip20.CbipSubmit">
+			<bean class="com.lxt2.proxyservice.cbip20.Cbip20SubmitHandler">
+				<property name="submitReceiver" ref="ps20SubmitReceiver1053"/>
+			</bean>
+		</entry>
+		<entry key="com.lxt2.protocol.cbip20.CbipReportResp">
+			<bean class="com.lxt2.proxyservice.cbip20.Cbip20ReportRespHandler">
+				<property name="moController" ref="psMoController1053"/>
+			</bean>
+		</entry>
+		<entry key="com.lxt2.protocol.cbip20.CbipDeliverResp">
+			<bean class="com.lxt2.proxyservice.cbip20.Cbip20DeliverRespHandler">
+				<property name="moController" ref="psMoController1053"/>
+			</bean>
+		</entry>
+        <entry key="com.lxt2.protocol.cbip20.CbipContentMmsResp">
+			<bean class="com.lxt2.protocol.codec.common.CommonHandler" />
+		</entry>
+		<!-- 2.0���� -->
+		<!-- 1.0��ʼ -->
+        <entry key="com.lxt2.protocol.cbip10.Standard_Content_MMS"><!--�������ݶ���-->
+			<bean class="com.lxt2.proxyservice.cbip10.Cbip10ContentMMSHandler">
+                <property name="mmsContentReceiver" ref="cbip10MmsContentMtReceiver"/>
+			</bean>
+		</entry>
+        <entry key="com.lxt2.protocol.cbip10.Standard_Submit_MMS"><!--���Ŷ���-->
+			<bean class="com.lxt2.proxyservice.cbip10.Cbip10SubmitMmsHandler">
+                <property name="mmsReceiver" ref="ps10MmsMtReceiver1053"/>
+			</bean>
+		</entry>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Active">
+			<bean class="com.lxt2.proxyservice.cbip10.ActiveHandler" />
+		</entry>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Login">
+			<bean class="com.lxt2.proxyservice.cbip10.LoginHandler">
+				<property name="verifyService" ref="ndClientVerify"/>
+				<property name="csService" ref="psClientSessionService1053"/>
+				<property name="module" ref="psModule1053"/>
+			</bean>
+		</entry>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Logout">
+			<bean class="com.lxt2.proxyservice.cbip10.LogoutHandler">
+				<property name="csService" ref="psClientSessionService1053"/>
+			</bean>
+		</entry>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Submit">
+			<bean class="com.lxt2.proxyservice.cbip10.SubmitHandler">
+				<property name="submitReceiver" ref="ps10SubmitReceiver1053"/>
+			</bean>
+		</entry>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Report_Resp">
+			<bean class="com.lxt2.proxyservice.cbip10.ReportRespHandler">
+				<property name="moController" ref="psMoController1053"/>
+			</bean>
+		</entry>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Deliver_Resp">
+			<bean class="com.lxt2.proxyservice.cbip10.DeliverRespHandler">
+				<property name="moController" ref="psMoController1053"/>
+			</bean>
+		</entry>
+		<!-- 1.0���� -->
+	</util:map>
+	<!-- ������Ϣ��handler���� -->
+	<util:map id="psSentMap1053" map-class="java.util.HashMap">
+		<!-- 2.0��ʼ -->
+		<entry key="com.lxt2.protocol.cbip20.CbipActiveResp" value-ref="psComHandler1053"/>
+		<entry key="com.lxt2.protocol.cbip20.CbipLoginResp" value-ref="psComHandler1053"/>
+		<entry key="com.lxt2.protocol.cbip20.CbipLogoutResp" value-ref="psComHandler1053"/>
+		<entry key="com.lxt2.protocol.cbip20.CbipSubmitResp" value-ref="psComHandler1053"/>
+		<entry key="com.lxt2.protocol.cbip20.CbipReport" value-ref="psComHandler1053"/>
+		<entry key="com.lxt2.protocol.cbip20.CbipDeliver" value-ref="psComHandler1053"/>
+		<entry key="com.lxt2.protocol.cbip20.CbipContentMmsResp" value-ref="psComHandler1053"/>
+		<!--<entry key="com.lxt2.protocol.cbip20.CbipSubmitmmsResponse" value-ref="psComHandler1053"/>-->
+		<!-- 2.0���� -->
+		<!-- 1.0��ʼ -->
+		<entry key="com.lxt2.protocol.cbip10.Standard_Active_Resp" value-ref="psComHandler1053"/>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Login_Resp" value-ref="psComHandler1053"/>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Logout_Resp" value-ref="psComHandler1053"/>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Submit_Response" value-ref="psComHandler1053"/>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Report" value-ref="psComHandler1053"/>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Deliver" value-ref="psComHandler1053"/>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Content_MMS_Resp" value-ref="psComHandler1053"/>
+		<!-- 1.0���� -->
+	</util:map>
+	<!-- API�û��ķ����handler -->
+	<bean id="psServerHandler1053" class="com.lxt2.proxyservice.socket.BaseHandler">
+		<!-- API�û�session������� -->
+		<property name="csService" ref="psClientSessionService1053"/>
+		<!-- ������� -->
+		<property name="decoderList" ref="psDecoderList1053"/>
+		<!-- ������� -->
+		<property name="encoderMap" ref="psEncoderMap1053"/>
+		<!-- ����handler -->
+		<property name="receiveMap" ref="psReceiveMap1053"/>
+		<!-- ����handler -->
+		<property name="sentMap" ref="psSentMap1053"/>
+		<property name="exceptionMap">
+			<map>
+				<entry key="java.lang.Throwable">
+					<bean class="com.lxt2.proxyservice.socket.BaseExceptionHandler" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+	<!--Mina���߳�ִ�й�����	-->
+	<bean id="psExecutorFilter1053" class="org.apache.mina.filter.executor.ExecutorFilter" >
+		<constructor-arg index="0" value="16"/>
+	</bean>
+	<!--Mina���ع�����	-->
+	<bean id="psFilterChainBuilder1053"
+		class="org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder">
+		<property name="filters">
+			<map>
+				<entry key="executor" value-ref="psExecutorFilter1053" />
+			</map>
+		</property>
+	</bean>
+	<!--Mina������	-->
+	<bean id="psIoAcceptor1053" class="org.apache.mina.transport.socket.nio.NioSocketAcceptor">
+		<constructor-arg index="0" value="10"/>
+		<property name="defaultLocalAddress">
+			<bean class="java.net.InetSocketAddress">
+				<constructor-arg index="0" value="1236" />
+			</bean>
+		</property>
+		<property name="handler" ref="psServerHandler1053" />
+		<property name="filterChainBuilder" ref="psFilterChainBuilder1053" />
+		<property name="reuseAddress" value="true" />
+	</bean>
+	
+    <bean id="cbip20MmsContentMtReceiver" class="com.lxt2.proxyservice.cbip20.Cbip20MmsContentMtReceiver">
+        <property name="commonResCenter" ref="commonResourceCenter"/>
+        <property name="verifyService" ref="ndClientVerify"/>
+        <!--<property name="wsResCenterClient" ref="wsResCenterClient"/>-->
+    </bean>
+    <bean id="cbip10MmsContentMtReceiver"  class="com.lxt2.proxyservice.cbip10.Cbip10MmsContentMtReceiver">
+        <property name="commonResCenter" ref="commonResourceCenter"/>
+        <property name="verifyService" ref="ndClientVerify"/>
+    </bean>
+    <bean id="ps10MmsMtReceiver1053" class="com.lxt2.proxyservice.cbip10.Cbip10MmsMtReceiver">
+        <property name="verifyService" ref="ndClientVerify"/>
+		<property name="mobileValidator" ref="ndMobileValidator"/>
+		<property name="strategy" ref="psThroughputStrategy1053"/>
+		<property name="psModule" ref="psModule1053"/>
+		<property name="sid" ref="ndSid"/>
+		<property name="resCenter" ref="commonResourceCenter"/>
+		<property name="sendTaskList" ref="sendTaskListDaoLog"/>
+		<property name="priorityFill" ref="priorityFill1053"/>
+    </bean>
+
+</beans>

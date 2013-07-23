@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<!-- log入库 -->
+	<bean id="sendTaskListDaoLog" class="com.lxt20.interfaceservice.filter.SendTaskListDaoLog"
+		destroy-method="stop">
+		<property name="saveFlag" value="true"></property>
+	</bean>
+	<!-- 生成重推report数据 -->
+	<bean id="psRepushReportDataService" class="com.lxt2.proxyservice.task.RepushReportDataService">
+		<property name="cmd" value="-U{0} -F{1} -Cgetrptdata -P53,1053,1653"/> 
+	</bean>
+	<bean id="psRepushReportDataGenCmd" class="com.lxt2.proxyservice.task.RepushReportDataGenCmd">
+		<property name="service" ref="psRepushReportDataService"/>
+	</bean>
+	<bean id="psRepushReportDataGenTask" class="com.lxt2.proxyservice.task.RepushReportDataGenTask">
+		<property name="id" value="131"/>
+		<property name="name" value="生成重推report数据"/>
+		<property name="service" ref="psRepushReportDataService"/>
+		<!-- 每小时 30分钟执行 -->
+		<property name="taskSchRule" value="@{sch(5)}"/>
+		<property name="commandMap">
+			<map>
+				<entry key="sync" value-ref="psRepushReportDataGenCmd"/>
+			</map>
+		</property>
+	</bean>
+	<!-- 重推report queue -->
+	<bean id="ReportMemoryQueue" class="com.lxt2.proxyservice.task.ReportMemoryQueue" init-method="init">
+	</bean>
+	<!-- 解析重推report数据 -->
+	<bean id="DeliveryDocumentAnalysis" class="com.lxt2.proxyservice.task.DeliveryDocumentAnalysis" init-method="init">
+		<property name="filepath" value="${WORKDIR}../../../data/repush/"/>
+		<property name="fileBakPath" value="${WORKDIR}../../../data/repushBakup/"></property>
+		<property name="maxQueueSize" value="100000"></property>
+		<property name="queue" ref="ReportMemoryQueue"></property>	
+		<property name="verifyService" ref="ndClientVerify"></property>	
+	</bean>	
+	<bean id="DeliveryDocumentAnalysisCmd" class="com.lxt2.proxyservice.task.DeliveryDocumentAnalysisCmd">
+		<property name="deliveryDocumentAnalysis" ref="DeliveryDocumentAnalysis"></property>
+	</bean>
+	<bean id="psDeliveryDocumentAnalysisTask" class="com.lxt2.proxyservice.task.DeliveryDocumentAnalysisTask">
+		<property name="id" value="132"/>
+		<property name="name" value="解析重推report数据"/>
+		<property name="deliveryDocumentAnalysis" ref="DeliveryDocumentAnalysis"></property>
+		<!-- 没小时 30分钟执行 -->
+		<property name="taskSchRule" value="@{sch(15)}"/>
+		<property name="commandMap">
+			<map>
+				<entry key="sync" value-ref="DeliveryDocumentAnalysisCmd"/>
+			</map>
+		</property>
+	</bean>
+	<!-- 重推report入hub -->
+	<bean id="ReportWriteHub" class="com.lxt2.proxyservice.task.ReportWriteHub">
+		<property name="queue" ref="ReportMemoryQueue"/>
+		<property name="hub" ref="hubImpl"></property>
+	</bean>	
+	<bean id="ReportWriteHubCmd" class="com.lxt2.proxyservice.task.ReportWriteHubCmd">
+		<property name="reportWriteHub" ref="ReportWriteHub"></property>
+	</bean>
+	<bean id="psReportWriteHubTask" class="com.lxt2.proxyservice.task.ReportWriteHubTask">
+		<property name="id" value="133"/>
+		<property name="name" value="重推report数据入hub"/>
+		<property name="reportWriteHub" ref="ReportWriteHub"></property>
+		<!-- 没小时 30分钟执行 -->
+		<property name="taskSchRule" value="@{sch(30)}"/>
+		<property name="commandMap">
+			<map>
+				<entry key="sync" value-ref="ReportWriteHubCmd"/>
+			</map>
+		</property>
+	</bean>
+</beans>

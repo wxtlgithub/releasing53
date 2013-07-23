@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	<!-- MO处理的Bean前缀是mop -->
+	<!-- 上行路由服务 -->
+	<bean id="mopDeliverRouter" class="com.lxt2.moprocess.router.XmlDeliverRouter" init-method="init">
+		<property name="persistDir" value="${CLASSPATH}/${nodeID}/persistent"/>
+		<property name="verifyService" ref="ndClientVerify"/>
+ 		<property name="systemConfig" ref="systemConfig"/>
+ 		<property name="cmd" value="-U{0} -F{1} -Cgetmorouter"/>
+<!-- 		<property name="node" ref="networkUnit"/> -->
+	</bean>
+	<!-- 上行路由命令 -->
+	<bean id="mopDeliverCmd" class="com.lxt2.moprocess.router.MoRouterLoadCmd">
+		<property name="deliverRouter" ref="mopDeliverRouter"/>
+	</bean>
+	<!-- 上行路由任务 -->
+	<bean id="mopDeliverSyncTask" class="com.lxt2.moprocess.router.MoRouterLoadTask">
+		<property name="id" value="108"/>
+		<property name="name" value="上行路由策略加载"/>
+		<property name="deliverRouter" ref="mopDeliverRouter" />
+		<property name="taskSchRule" value="@{sch(0,4)}"/>
+		<property name="commandMap">
+			<map>
+				<entry key="sync" value-ref="mopDeliverCmd"/>
+			</map>
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	<!--NetworkUnit part -->
+	<bean id="networkUnit" class="com.lxt2.framework.NetworkUnit">
+		<property name="id" value="53" />
+		<property name="name" value="通信平台" />
+		<property name="invoker">
+			<ref local="networkUnitInvoker" />
+		</property>
+		<property name="isMain" value="true" />
+		<property name="commonFunctionMap">
+			<map>
+				<entry key="601" value-ref="hubImpl" />
+			</map>
+		</property>
+		<property name="commonTaskMap">
+			<map>
+				<entry key="1" value-ref="taskExecution" />
+				<entry key="2" value-ref="taskSchedule" />
+			</map>
+		</property>
+		<property name="taskMap">
+			<map>
+				<entry key="101" value-ref="ndClientVerifyTask" />
+				<!-- 系统黑名单全量加载 -->
+				<entry key="102" value-ref="blkSyncAllTask" />
+				<!-- 系统黑名单增量加载 -->
+				<entry key="103" value-ref="blkSyncIncTask" />
+				<entry key="106" value-ref="dwDirtyWordTask" />
+				<!-- 下行路由策略加载 -->
+				<entry key="107" value-ref="mtpRouterReloadTask" />
+				<entry key="108" value-ref="mopDeliverSyncTask" />
+				<entry key="109" value-ref="phaseSyncAllTask1153" />
+				<entry key="110" value-ref="gatewayConfigLoadTask" />
+				<!-- 通道组鉴权信息加载 -->
+				<entry key="111" value-ref="psProductVerifyTask" />
+				<!-- 特殊号码加载 -->
+				<entry key="112" value-ref="specialMobileTask" />
+				<entry key="113" value-ref="PerformanceLoggerTask" />
+				<entry key="114" value-ref="clearHubTask" />
+				<entry key="115" value-ref="resClearTask" />
+				<!-- 彩信黑名单全量加载 -->
+				<entry key="116" value-ref="blkSyncAllTaskMMS" />
+				<!-- 彩信黑名单增量加载 -->
+				<entry key="117" value-ref="blkSyncIncTaskMMS" />
+				<!-- 大号段同步加载 -->
+				<entry key="121" value-ref="tlOpPhaseSysTask" />
+				<entry key="122" value-ref="clearHubTask2" />
+				<!-- 网关通道黑名单,敏感词 -->
+				<entry key="125" value-ref="gwDwDirtyWordTask" />
+				<!-- 
+				<entry key="126" value-ref="gwBlkSyncAllTask" />
+				<entry key="124" value-ref="gwBlkSyncIncTask" />
+				<entry key="127" value-ref="gwSyncBlkFileTask" /> 
+				-->
+				<entry key="128" value-ref="gwSyncShareBlkFileTask" />
+				<entry key="123" value-ref="ndecClientVerifyTask" />
+				<entry key="130" value-ref="prepaidEcVerifyTask" />	
+				<entry key="131" value-ref="psRepushReportDataGenTask" />
+				<entry key="132" value-ref="psDeliveryDocumentAnalysisTask" />
+				<entry key="133" value-ref="psReportWriteHubTask" />
+				<!--  <entry key="301" value-ref="shareBlkTask" />	-->
+				<!-- 接口审核短信定时清理 -->
+				<entry key="305" value-ref="psClientSubmitTask" />		
+				<!-- 客户端短信处理 -->
+				<entry key="306" value-ref="psClientContentTask" />
+				<!-- 重复过滤 -->
+				<entry key="307" value-ref="duplicateFilterTask" />
+			</map>
+		</property>
+		<property name="moduleMap">
+			<map>
+				<entry key="1053" value-ref="psModule1053" />
+				<entry key="1153" value-ref="mtpModule1153" />
+				<entry key="1653" value-ref="psModule1653" />
+				<entry key="1353" value-ref="rptModule1353" />
+				<entry key="1453" value-ref="mopModule1453" />
+				<entry key="1553" value-ref="clumpedModule1553" />
+				
+			</map>
+		</property>
+		<property name="subFunctionMap">
+			<map>
+				<entry key="1" value-ref="taskExecution" />
+				<entry key="2" value-ref="taskSchedule" />
+				<entry key="601" value-ref="hubImpl" />
+				<entry key="1053" value-ref="psModule1053" /> 
+				<entry key="1153" value-ref="mtpModule1153" />
+				<entry key="1653" value-ref="psModule1653" />
+				<entry key="1353" value-ref="rptModule1353" />
+				<entry key="1553" value-ref="clumpedModule1553" />
+				<entry key="1453" value-ref="mopModule1453" />
+				<entry key="9999" value-ref="reloadFunction" />
+			</map>
+		</property>
+		<property name="taskSchedule">
+			<ref local="taskSchedule" />
+		</property>
+		<property name="taskExecution">
+			<ref local="taskExecution" />
+		</property>
+	</bean>
+
+	<!--CommonTask part -->
+	<bean id="taskExecution" class="com.lxt2.framework.TaskExecution">
+		<property name="id" value="1" />
+		<property name="name" value="任务执行" />
+		<property name="taskType">
+			<value type="com.lxt2.framework.base.TaskType">HOST</value>
+		</property>
+		<property name="corePoolSize" value="100" />
+		<property name="maxPoolSize" value="200" />  
+	</bean>
+	<bean id="taskSchedule" class="com.lxt2.framework.TaskSchedule">
+		<property name="id" value="2" />
+		<property name="name" value="任务调度" />
+		<property name="taskType">
+			<value type="com.lxt2.framework.base.TaskType">HOST</value>
+		</property>
+	</bean>
+	<!--Task part Start -->
+
+	<!--Invoker part -->
+	<bean id="networkUnitInvoker" class="com.lxt2.framework.control.NetworkUnitInvoker">
+		<property name="remoteVisitControl">
+			<ref local="webVisitControl" />
+		</property>
+		<property name="commandMap">
+			<map>
+				<entry key="start" value-ref="start" />
+				<entry key="pause" value-ref="pause" />
+				<entry key="resume" value-ref="resume" />
+				<entry key="stop" value-ref="stop" />
+				<entry key="exe" value-ref="exe" />
+				<entry key="add" value-ref="add" />
+				<entry key="remove" value-ref="remove" />
+				<entry key="list" value-ref="list" />
+				<entry key="listc" value-ref="listc" />
+				<entry key="listm" value-ref="listm" />
+				<entry key="listt" value-ref="listt" />
+				<entry key="liste" value-ref="liste" />
+				<entry key="listf" value-ref="listf" />
+				<entry key="queue" value-ref="queue" />
+				<entry key="view" value-ref="view" />
+				<entry key="viewall" value-ref="viewall" />
+				<entry key="ecstopsend" value-ref="stopEcCmd" />
+				<entry key="ecstartsend" value-ref="startEcCmd" />
+			</map>
+		</property>
+	</bean>
+	<!--Visit control part -->
+	<bean id="webVisitControl" class="com.lxt2.framework.control.WebVisitControl">
+	</bean>
+	<!--Command part -->
+	<!-- <bean id="viewall" class="com.lxt2.serverframe.networkunit.command.ViewAllCmd"> -->
+	<!-- <property name="node"> -->
+	<!-- <ref local="networkUnit" /> -->
+	<!-- </property> -->
+	<!-- </bean> -->
+	<bean id="start" class="com.lxt2.framework.command.StartCmd" />
+	<bean id="pause" class="com.lxt2.framework.command.PauseCmd" />
+	<bean id="resume" class="com.lxt2.framework.command.ResumeCmd" />
+	<bean id="stop" class="com.lxt2.framework.command.StopCmd" />
+	<bean id="exe" class="com.lxt2.framework.command.ExecuteCmd" />
+	<bean id="add" class="com.lxt2.framework.command.AddTaskCmd" />
+	<bean id="remove" class="com.lxt2.framework.command.RemoveTaskCmd" />
+	<bean id="listm" class="com.lxt2.framework.command.ListModuleCmd" />
+	<bean id="list" class="com.lxt2.framework.command.ListCmd" />
+	<bean id="listc" class="com.lxt2.framework.command.ListCommonTaskCmd" />
+	<bean id="listt" class="com.lxt2.framework.command.ListScheduleTaskCmd" />
+	<bean id="liste" class="com.lxt2.framework.command.ListExecutionCmd" />
+	<bean id="listf" class="com.lxt2.framework.command.ListFunctionCmd" />
+	<bean id="view" class="com.lxt2.framework.command.ViewCmd" />
+	<bean id="viewall" class="com.lxt2.base.command.ViewAllCmd" />
+
+	<!-- 网元所有队列性能监视 -->
+	<bean id="queue" class="com.lxt2.framework.command.QueueMonitorCmd">
+	</bean>
+
+	<bean id="sysconfighelper" class="com.lxt2.framework.util.SysConfigHelper"
+		init-method="init">
+		<property name="configXmlPath" value="/53/config/systemconfig.xml" />
+	</bean>
+
+	<bean id="systemConfig" class="com.lxt2.base.CommunicateHelper" />
+
+	<bean id="staticHandle" class="com.lxt2.framework.util.GlobleStaticHandler"
+		init-method="init">
+		<property name="networkUnit" ref="networkUnit" />
+	</bean>
+
+	<bean id="ndSid" class="com.lxt2.base.persist.SID">
+		<property name="nodeId" value="53" />
+	</bean>
+
+	<bean id="ndMobileValidator" class="com.standardsm.phasenew.DefaultMobileValidator"
+		init-method="init" />
+
+	<bean id="ndNodeRefresh" class="com.lxt2.base.node.NodeRefreshThread"
+		init-method="init" destroy-method="destroy">
+		<property name="hub" ref="hubImpl" />
+	</bean>
+</beans>

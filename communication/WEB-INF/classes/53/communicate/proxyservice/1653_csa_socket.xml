@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+					    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+	<!-- 接口服务的Bean前缀是ps -->
+	<!-- 定时发送检查器2.0版 -->
+	<bean id="psTimerSendChecker1653" class="com.lxt2.proxyservice.cbip20.SendTimeTypeChecker" />
+	<!-- 彩信 -->
+	<bean id="psTimerSendMmsChecker1653" class="com.lxt2.proxyservice.cbip20.SendTimeTypeMmsChecker" />
+
+	<!-- 接口服务Submit接收Bean 2.0 开始 -->
+	<bean id="priorityFill1653" class="com.lxt2.proxyservice.throughput.PriorityFill" />
+
+	<bean id="ps20SubmitReceiver1653" class="com.lxt2.proxyservice.cbip20.Cbip20SmsMtReceiver">
+		<property name="verifyService" ref="ndClientVerify" />
+		<property name="mobileValidator" ref="ndMobileValidator" />
+		<property name="strategy" ref="psThroughputStrategy1653" />
+		<property name="psModule" ref="psModule1653" />
+		<property name="sid" ref="ndSid" />
+		<property name="sendTimeType" ref="psTimerSendChecker1653" />
+		<property name="timeQueue" ref="psTimerQueue1653" />
+		<property name="priorityFill" ref="priorityFill1653" />
+		<property name="sendTaskList" ref="sendTaskListDaoLog" />
+	</bean>
+	<!--彩信内容 -->
+	<bean id="ps20MmsMtReceiver1653" class="com.lxt2.proxyservice.cbip20.Cbip20MmsMtReceiver">
+		<property name="verifyService" ref="ndClientVerify" />
+		<property name="mobileValidator" ref="ndMobileValidator" />
+		<property name="strategy" ref="psThroughputStrategy1653" />
+		<property name="psModule" ref="psModule1653" />
+		<property name="sid" ref="ndSid" />
+		<property name="sendTimeType" ref="psTimerSendMmsChecker1653" />
+		<property name="timeQueue" ref="psTimerQueue1653" />
+		<property name="resCenter" ref="commonResourceCenter" />
+		<property name="sendTaskList" ref="sendTaskListDaoLog" />
+		<property name="priorityFill" ref="priorityFill1653" />
+	</bean>
+	<!-- 生成msgID -->
+	<bean id="mtpMsgID1653" class="com.lxt2.mtprocess.MsgIdUtil">
+	</bean>
+	<!-- 接口服务Submit接收Bean 2.0 结束 -->
+	<!-- 接口服务Submit接收Bean 1.0 -->
+	<bean id="ps10SubmitReceiver1653" class="com.yxt.proxyservice.csa.CSASmsMtReceiver">
+		<property name="verifyService" ref="ndClientVerify" />
+		<property name="mobileValidator" ref="ndMobileValidator" />
+		<property name="strategy" ref="psThroughputStrategy1653" />
+		<property name="psModule" ref="psModule1653" />
+		<property name="msgIdUtil" ref="mtpMsgID1653"/>
+		<property name="sendTaskList" ref="sendTaskListDaoLog" />
+		<property name="saveLogger" ref="saveLogger"/>
+		<property name="sid" ref="ndSid" />
+		<property name="productVerify" ref="psProductVerify" />
+	</bean>
+	<!-- API用户Session管理服务Bean -->
+	<bean id="psClientSessionService1653" class="com.lxt2.proxyservice.socket.ClientSessionService" />
+
+	<!-- Common Handler -->
+	<bean id="psComHandler1653" class="com.lxt2.protocol.codec.common.CommonHandler" />
+	<util:list id="psDecoderList1653" list-class="java.util.ArrayList">
+		<!-- 1.0开始 -->
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardActiveDecoder
+		</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardLoginDecoder
+		</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardLogoutDecoder
+		</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardSubmitDecoder
+		</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardReportRespDecoder
+		</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardDeliverRespDecoder
+		</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardSubmitMMSDecoder
+		</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardContentMMSDecoder
+		</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardInnerResponseDecoder
+		</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardResponseDecoder
+		</value>
+		<value>com.lxt2.protocol.codec.cbip10.decode.StandardResponseRespDecoder
+		</value>
+		<!-- 1.0结束 -->
+	</util:list>
+	<!-- 编码器集合 -->
+	<util:map id="psEncoderMap1653" map-class="java.util.HashMap">
+		<!-- 1.0开始 -->
+		<entry key="com.lxt2.protocol.cbip10.Standard_Active_Resp"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardActiveRespEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Login_Resp"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardLoginRespEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Logout_Resp"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardLogoutRespEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Submit_Response"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardSubmitResponseEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Submit_Resp"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardSubmitRespEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Inner_Response"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardInnerResponseEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Response"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardResponseEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Report_Old"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardReportOldEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Inner_Report"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardInnerReportEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Deliver"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardDeliverEncoder" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Content_MMS_Resp"
+			value="com.lxt2.protocol.codec.cbip10.encode.StandardContentMMSRespEncoder" />
+		<!-- 1.0结束 -->
+	</util:map>
+	<!-- 接收消息的handler集合 -->
+	<util:map id="psReceiveMap1653" map-class="java.util.HashMap">
+		<!-- 1.0开始 -->
+		<entry key="com.lxt2.protocol.cbip10.Standard_Active">
+			<bean class="com.lxt2.proxyservice.cbip10.ActiveHandler" />
+		</entry>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Login">
+			<bean class="com.lxt2.proxyservice.cbip10.LoginHandler">
+				<property name="verifyService" ref="ndClientVerify" />
+				<property name="csService" ref="psClientSessionService1653" />
+				<property name="module" ref="psModule1653" />
+			</bean>
+		</entry>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Logout">
+			<bean class="com.lxt2.proxyservice.cbip10.LogoutHandler">
+				<property name="csService" ref="psClientSessionService1653" />
+			</bean>
+		</entry>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Submit">
+			<bean class="com.lxt2.proxyservice.csa.SubmitHandler">
+				<property name="submitReceiver" ref="ps10SubmitReceiver1653" />
+			</bean>
+		</entry>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Report_Resp">
+			<bean class="com.lxt2.proxyservice.cbip10.ReportRespHandler">
+				<property name="moController" ref="psMoController1653" />
+			</bean>
+		</entry>
+		<entry key="com.lxt2.protocol.cbip10.Standard_Deliver_Resp">
+			<bean class="com.lxt2.proxyservice.cbip10.DeliverRespHandler">
+				<property name="moController" ref="psMoController1653" />
+			</bean>
+		</entry>
+		<!-- 1.0结束 -->
+	</util:map>
+	<!-- 发送消息的handler集合 -->
+	<util:map id="psSentMap1653" map-class="java.util.HashMap">
+		<!-- CSA开始 -->
+		<entry key="com.lxt2.protocol.cbip10.Standard_Active_Resp"
+			value-ref="psComHandler1653" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Login_Resp"
+			value-ref="psComHandler1653" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Logout_Resp"
+			value-ref="psComHandler1653" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Submit_Response"
+			value-ref="psComHandler1653" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Response"
+			value-ref="psComHandler1653" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Submit_Resp"
+			value-ref="psComHandler1653" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Report_Old"
+			value-ref="psComHandler1653" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Inner_Report"
+			value-ref="psComHandler1653" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Deliver"
+			value-ref="psComHandler1653" />
+		<entry key="com.lxt2.protocol.cbip10.Standard_Inner_Response"
+			value-ref="psComHandler1653" />
+		<!-- CSA结束 -->
+	</util:map>
+	<!-- API用户的服务端handler -->
+	<bean id="psServerHandler1653" class="com.lxt2.proxyservice.socket.BaseHandler">
+		<!-- API用户session管理服务 -->
+		<property name="csService" ref="psClientSessionService1653" />
+		<!-- 解码器集合 -->
+		<property name="decoderList" ref="psDecoderList1653" />
+		<!-- 编码器集合 -->
+		<property name="encoderMap" ref="psEncoderMap1653" />
+		<!-- 接收handler -->
+		<property name="receiveMap" ref="psReceiveMap1653" />
+		<!-- 发送handler -->
+		<property name="sentMap" ref="psSentMap1653" />
+		<property name="exceptionMap">
+			<map>
+				<entry key="java.lang.Throwable">
+					<bean class="com.lxt2.proxyservice.socket.BaseExceptionHandler" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+	<!--Mina的线程执行过滤器 -->
+	<bean id="psExecutorFilter1653" class="org.apache.mina.filter.executor.ExecutorFilter">
+		<constructor-arg index="0" value="16" />
+	</bean>
+	<!--Mina加载过滤器 -->
+	<bean id="psFilterChainBuilder1653"
+		class="org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder">
+		<property name="filters">
+			<map>
+				<entry key="executor" value-ref="psExecutorFilter1653" />
+			</map>
+		</property>
+	</bean>
+	<!--Mina启动设置 -->
+	<bean id="psIoAcceptor1653" class="org.apache.mina.transport.socket.nio.NioSocketAcceptor">
+		<constructor-arg index="0" value="10" />
+		<property name="defaultLocalAddress">
+			<bean class="java.net.InetSocketAddress">
+				<constructor-arg index="0" value="10241" />
+			</bean>
+		</property>
+		<property name="handler" ref="psServerHandler1653" />
+		<property name="filterChainBuilder" ref="psFilterChainBuilder1653" />
+		<property name="reuseAddress" value="true" />
+	</bean>
+</beans>
