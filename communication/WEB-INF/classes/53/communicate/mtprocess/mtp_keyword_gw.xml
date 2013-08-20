@@ -11,7 +11,7 @@
 			<value><![CDATA[select case when w.numgwid <2000 then w.numgwid + 2400 else w.numgwid end as gatewayid, w.vc2dirtyword as dirtyword  from tl_dirtyword_gw w where numflag = 1]]></value>
 		</property>
 	</bean> 
-	<bean id="gwDirtyWord" class="com.lxt2.keywordfilter.gw.GwBitDirtyWord" init-method="loadDirty">
+	<bean id="gwDirtyWord" class="com.lxt2.keywordfilter.gw.GwBitDirtyWordNew" init-method="loadDirty">
 		<property name="dirtySqlDB" ref="gwDirtyWordSqlDB"/>
 		<property name="persistDir" value="${WORKDIR}../../../data/biz/"/>
 	</bean>

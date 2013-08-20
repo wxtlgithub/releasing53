@@ -16,7 +16,7 @@
 			<value><![CDATA[select w.vc2dirtyword as dirtyWord from tl_dirtyword w where w.numflag = 1]]></value>
 		</property>
 	</bean> 
-	<bean id="dirtyWord" class="com.lxt2.keywordfilter.BitDirtyWord" init-method="loadDirty">
+	<bean id="dirtyWord" class="com.lxt2.keywordfilter.BitDirtyWordNew" init-method="loadDirty">
 		<property name="dirtySqlDB" ref="dirtyWordSqlDB"/>
 		<property name="persistDir" value="${WORKDIR}../../../data/biz/"/>
 	</bean>
