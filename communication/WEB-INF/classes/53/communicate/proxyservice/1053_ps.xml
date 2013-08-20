@@ -58,11 +58,11 @@
 	<!-- RPT, MO回传控制器 -->
 	<bean id="psMoController1053" class="com.lxt2.proxyservice.MoController">
 		<!-- 滑动窗口大小 -->
-		<property name="controlWindowSize" value="10" />
+		<property name="controlWindowSize" value="10000" />
 		<!-- 滑动窗口中数据的超时时间 -->
-		<property name="clearTimeOut" value="60000" />
+		<property name="clearTimeOut" value="10000" />
 		<!-- 滑动窗口清理线程每次休眠时间 -->
-		<property name="clearSleepTime" value="60000" />
+		<property name="clearSleepTime" value="10000" />
 		<!-- 控制器所属于的模块 -->
 		<property name="module" ref="psModule1053" />
 		<!-- MO备份队列 -->
